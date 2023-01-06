@@ -69,7 +69,7 @@ fn main() {
     unsafe {
         ctx.enable(glow::DEPTH_TEST);
     }
-    //window.set_cursor_mode(glfw::CursorMode::Disabled);
+    window.set_cursor_mode(glfw::CursorMode::Disabled);
 
     // prepare viewport
     unsafe {
