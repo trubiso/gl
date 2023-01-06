@@ -45,29 +45,3 @@ Shader::Shader(const char *vert_path, const char *frag_path) {
   glDeleteShader(frag);
 }
 
-void Shader::use() {
-  glUseProgram(ID);
-}
-
-unsigned int Shader::get_uniform(const char *name) {
-  return glGetUniformLocation(ID, name);
-}
-
-inline unsigned int Shader::get_uniform(std::string name) {
-  return get_uniform(name.c_str());
-}
-
-void Shader::set_uniform(const char *name, UniformType type, void *value) {
-  auto loc = get_uniform(name);
-  switch (type) {
-    case INT:   glUniform1i (loc, *((int *)          value)); break;
-    case UINT:  glUniform1ui(loc, *((unsigned int *) value)); break;
-    case FLOAT: glUniform1f (loc, *((float *)        value)); break;
-    default: break;
-  }
-}
-
-inline void Shader::set_uniform(std::string name, UniformType type, void *value) {
-  return set_uniform(name.c_str(), type, value);
-}
-

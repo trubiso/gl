@@ -21,3 +21,4 @@ std::string read_file(const char *path) {
 
   return content;
 }
+
