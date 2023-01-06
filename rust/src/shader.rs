@@ -69,11 +69,13 @@ impl Shader {
         unsafe { ctx.use_program(Some(self.id)); }
     }
 
-    pub fn get_uniform_location(&self, ctx: &glow::Context, name: &str) -> NativeUniformLocation {
-        unsafe { ctx.get_uniform_location(self.id, name) }.unwrap()
+    pub fn get_uniform_location(&self, ctx: &glow::Context, name: &str) -> Option<NativeUniformLocation> {
+        unsafe { ctx.get_uniform_location(self.id, name) }
     }
 
     pub fn set_uniform<T: uniform::Uniform>(&self, ctx: &glow::Context, name: &str, value: T) {
-        value.set(ctx, self.get_uniform_location(ctx, name));
+        if let Some(loc) = self.get_uniform_location(ctx, name) {
+            value.set(ctx, loc);
+        }
     }
 }
