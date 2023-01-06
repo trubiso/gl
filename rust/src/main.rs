@@ -40,6 +40,7 @@ fn create_texture(ctx: &glow::Context, image: image::DynamicImage, texture_num: 
         };
 
         ctx.tex_image_2d(glow::TEXTURE_2D, 0, image_format as i32, width, height, 0, image_format, image_type, Some(data));
+        ctx.generate_mipmap(glow::TEXTURE_2D)
     }
 
     texture
@@ -158,8 +159,8 @@ fn main() {
     let texture1 = create_texture(&ctx, image::io::Reader::open("img/awesome.png").unwrap().decode().unwrap(), glow::TEXTURE1);
 
     shader.make_current(&ctx);
-    // shader.set_uniform(&ctx, "tex1", 0i32);
-    // shader.set_uniform(&ctx, "tex2", 1i32);
+    shader.set_uniform(&ctx, "tex1", 0i32);
+    shader.set_uniform(&ctx, "tex2", 1i32);
 
     let mut delta_time = 0.0f32;
     let mut last_frame = 0.0f64;
