@@ -1,0 +1,14 @@
+[package]
+name = "trubiso_gl"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bytemuck = "1.12.3"
+gl = "0.14.0"
+glfw = "0.49.1"
+glm = "0.2.3"
+glow = "0.11.2"
+image = "0.24.5"
