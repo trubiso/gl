@@ -3,7 +3,7 @@ use glfw::{Context, WindowEvent, Key, Action};
 use glow::HasContext;
 use util::clamp_mut;
 
-use crate::{shader::Shader, camera::{Camera, FreeFlyCamera}, util::MatrixSlice};
+use crate::{shader::Shader, camera::{Camera, FreeFlyCamera}};
 
 pub mod camera;
 pub mod shader;
@@ -51,7 +51,7 @@ fn main() {
     let mut glfw = glfw::init(glfw::FAIL_ON_ERRORS).unwrap();
 
     // window
-    let (mut window, mut receiver) = glfw
+    let (mut window, receiver) = glfw
         .create_window(
             SCREEN_WIDTH,
             SCREEN_HEIGHT,
@@ -162,7 +162,7 @@ fn main() {
     shader.set_uniform(&ctx, "tex1", 0i32);
     shader.set_uniform(&ctx, "tex2", 1i32);
 
-    let mut delta_time = 0.0f32;
+    let mut delta_time;
     let mut last_frame = 0.0f64;
 
     let mut mix_val = 0.0f32;
@@ -172,8 +172,8 @@ fn main() {
     let mut cam = FreeFlyCamera::default();
 
     let mut first_mouse = true;
-    let mut last_x = 400f32;
-    let mut last_y = 300f32;
+    let mut last_x = SCREEN_WIDTH as f32 / 2.0;
+    let mut last_y = SCREEN_HEIGHT as f32 / 2.0;
 
     let cube_positions = [
         glm::vec3( 0.0,  0.0,  0.0), 
@@ -215,12 +215,12 @@ fn main() {
         shader.set_uniform(&ctx, "projection", projection);
         shader.set_uniform(&ctx, "view", view);
 
-        for i in 0..1 {
-            let mut model = glm::Mat4::new(glm::to_vec4(1.0), glm::to_vec4(1.0), glm::to_vec4(1.0), glm::to_vec4(1.0));
+        for i in 0..10 {
+            let mut model = glm::mat4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
             model = glm::ext::translate(&model, cube_positions[i]);
             let angle = 20.0 * i as f32;
             model = glm::ext::rotate(&model, angle.to_radians(), glm::vec3(1.0, 0.3, 0.5));
-            // model = glm::ext::rotate(&model, time_value as f32 * 50.0f32.to_radians(), glm::vec3(0.5, 1.0, 0.0));
+            model = glm::ext::rotate(&model, time_value as f32 * 50.0f32.to_radians(), glm::vec3(0.5, 1.0, 0.0));
             shader.set_uniform(&ctx, "model", model);
 
             unsafe {
@@ -276,7 +276,7 @@ fn main() {
                         let x_off = x as f32 - last_x;
                         let y_off = last_y - y as f32;
                         last_x = x as f32;
-                        last_y = x as f32;
+                        last_y = y as f32;
 
                         cam.process_camera_event(camera::CameraEvent::MouseMovement(x_off, y_off), delta_time);
                     },

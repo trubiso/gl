@@ -1,11 +1,11 @@
 use glm::{self, vec3, Vec3};
 
-use crate::util::clamp_mut;
+use crate::util::{clamp_mut};
 
 const YAW: f32 = -90.0;
 const PITCH: f32 = 0.0;
 const SPEED: f32 = 10.0;
-const SENSITIVITY: f32 = 0.01;
+const SENSITIVITY: f32 = 0.1;
 const FOV: f32 = 45.0;
 
 pub enum CameraEvent {
