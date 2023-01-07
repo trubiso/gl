@@ -1,7 +1,8 @@
+use buffer::{VertexArrayObject, VertexBufferObject};
 use camera::{CameraMovementDirection, CameraEvent::KeyboardMovement};
 use glfw::{Context, WindowEvent, Key, Action};
 use glow::HasContext;
-use util::clamp_mut;
+use util::{clamp_mut, MatrixUtils};
 
 use crate::{shader::Shader, camera::{Camera, FreeFlyCamera}};
 
@@ -11,6 +12,7 @@ pub mod util;
 pub mod object;
 pub mod resource;
 pub mod texture;
+pub mod buffer;
 
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 600;
@@ -50,8 +52,6 @@ fn main() {
     window.set_framebuffer_size_polling(true);
     window.set_cursor_pos_polling(true);
     window.set_scroll_polling(true);
-
-    let shader = Shader::from_file(&ctx, "shader/triangle.vert", "shader/triangle.frag", None);
 
     #[rustfmt::skip]
     let vertices = [
@@ -98,35 +98,19 @@ fn main() {
         -0.5,  0.5, -0.5,  0.0, 1.0f32
     ];
 
-    let vao = unsafe { ctx.create_vertex_array().unwrap() };
-    unsafe {
-        ctx.bind_vertex_array(Some(vao));
-    }
+    let mut vao = VertexArrayObject::new(&ctx);
+    vao.bind(&ctx);
 
-    let vbo = unsafe { ctx.create_buffer().unwrap() };
-    unsafe {
-        ctx.bind_buffer(glow::ARRAY_BUFFER, Some(vbo));
-        ctx.buffer_data_u8_slice(
-            glow::ARRAY_BUFFER,
-            bytemuck::cast_slice(&vertices),
-            glow::STATIC_DRAW,
-        );
-    }
+    let vbo = VertexBufferObject::new(&ctx);
+    vbo.set_data(&ctx, &vertices);
 
-    // attributes
-    unsafe {
-        let float = std::mem::size_of::<f32>() as i32;
-
-        ctx.vertex_attrib_pointer_f32(0, 3, glow::FLOAT, false, 5 * float, 0);
-        ctx.enable_vertex_attrib_array(0);
-
-        ctx.vertex_attrib_pointer_f32(1, 2, glow::FLOAT, false, 5 * float, 3 * float);
-        ctx.enable_vertex_attrib_array(1);
-    }
+    vao.add_attrib::<f32>(3).add_attrib::<f32>(2).apply_attribs(&ctx);
 
     // loading texture
     let texture0 = texture::Texture::from_file(&ctx, "img/container.jpg", 0);
     let texture1 = texture::Texture::from_file(&ctx, "img/awesome.png", 1);
+
+    let shader = Shader::from_file(&ctx, "shader/triangle.vert", "shader/triangle.frag", None);
 
     shader.make_current(&ctx);
     texture0.use_in_shader(&ctx, &shader);
@@ -162,12 +146,12 @@ fn main() {
         unsafe {
             ctx.clear_color(1.0, 0.776470588235, 0.0, 1.0);
             ctx.clear(glow::COLOR_BUFFER_BIT | glow::DEPTH_BUFFER_BIT);
-
-            texture0.bind(&ctx);
-            texture1.bind(&ctx);
-
-            ctx.bind_vertex_array(Some(vao));
         }
+
+        texture0.bind(&ctx);
+        texture1.bind(&ctx);
+
+        vao.bind(&ctx);
 
         let time_value = glfw.get_time();
         delta_time = (time_value - last_frame) as f32;
@@ -184,7 +168,7 @@ fn main() {
         shader.set_uniform(&ctx, "view", view);
 
         for i in 0..10 {
-            let mut model = glm::mat4(1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+            let mut model = glm::Mat4::from_val(1.0);
             model = glm::ext::translate(&model, cube_positions[i]);
             let angle = 20.0 * i as f32;
             model = glm::ext::rotate(&model, angle.to_radians(), glm::vec3(1.0, 0.3, 0.5));

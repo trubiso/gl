@@ -9,8 +9,9 @@ enum ShaderType {
     Geometry
 }
 
+#[derive(Debug)]
 pub struct Shader {
-    id: NativeProgram,
+    id: NativeProgram
 }
 
 impl Shader {

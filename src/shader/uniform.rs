@@ -1,6 +1,6 @@
 use glow::{HasContext, NativeUniformLocation};
 
-use crate::util::MatrixSlice;
+use crate::util::MatrixUtils;
 
 pub trait Uniform {
     fn set(&self, ctx: &glow::Context, loc: NativeUniformLocation);

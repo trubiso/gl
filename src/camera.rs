@@ -1,6 +1,6 @@
 use glm::{self, vec3, Vec3};
 
-use crate::util::{clamp_mut};
+use crate::{util::{clamp_mut}, SCREEN_RATIO};
 
 const YAW: f32 = -90.0;
 const PITCH: f32 = 0.0;
@@ -23,6 +23,8 @@ pub enum CameraMovementDirection {
 
 pub trait Camera {
     fn get_view_matrix(&self) -> glm::Mat4;
+    fn get_projection_matrix(&self) -> glm::Mat4;
+    fn use_in_shader(&self, ctx: &glow::Context, shader: &crate::shader::Shader);
     fn process_camera_event(&mut self, event: CameraEvent, delta_time: f32);
 }
 
@@ -42,6 +44,15 @@ pub struct FreeFlyCamera {
 impl Camera for FreeFlyCamera {
     fn get_view_matrix(&self) -> glm::Mat4 {
         glm::ext::look_at(self.pos, self.pos + self.front, self.up)
+    }
+
+    fn get_projection_matrix(&self) -> glm::Mat4 {
+        glm::ext::perspective(self.fov.to_radians(), SCREEN_RATIO, 0.1, 100.0)
+    }
+
+    fn use_in_shader(&self, ctx: &glow::Context, shader: &crate::shader::Shader) {
+        shader.set_uniform(ctx, "view", self.get_view_matrix());
+        shader.set_uniform(ctx, "projection", self.get_projection_matrix());
     }
 
     fn process_camera_event(&mut self, event: CameraEvent, delta_time: f32) {
