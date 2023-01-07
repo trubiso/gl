@@ -1,10 +1,10 @@
-use buffer::{VertexArrayObject, VertexBufferObject};
 use camera::{CameraMovementDirection, CameraEvent::KeyboardMovement};
 use glfw::{Context, WindowEvent, Key, Action};
 use glow::HasContext;
-use util::{clamp_mut, MatrixUtils};
+use object::{test_cube::{TestCubeObject}, GameObject};
+use resource::ResourceManager;
 
-use crate::{shader::Shader, camera::{Camera, FreeFlyCamera}};
+use crate::{camera::{Camera, FreeFlyCamera}};
 
 pub mod camera;
 pub mod shader;
@@ -53,73 +53,12 @@ fn main() {
     window.set_cursor_pos_polling(true);
     window.set_scroll_polling(true);
 
-    #[rustfmt::skip]
-    let vertices = [
-        -0.5, -0.5, -0.5,  0.0, 0.0,
-         0.5, -0.5, -0.5,  1.0, 0.0,
-         0.5,  0.5, -0.5,  1.0, 1.0,
-         0.5,  0.5, -0.5,  1.0, 1.0,
-        -0.5,  0.5, -0.5,  0.0, 1.0,
-        -0.5, -0.5, -0.5,  0.0, 0.0,
-    
-        -0.5, -0.5,  0.5,  0.0, 0.0,
-         0.5, -0.5,  0.5,  1.0, 0.0,
-         0.5,  0.5,  0.5,  1.0, 1.0,
-         0.5,  0.5,  0.5,  1.0, 1.0,
-        -0.5,  0.5,  0.5,  0.0, 1.0,
-        -0.5, -0.5,  0.5,  0.0, 0.0,
-    
-        -0.5,  0.5,  0.5,  1.0, 0.0,
-        -0.5,  0.5, -0.5,  1.0, 1.0,
-        -0.5, -0.5, -0.5,  0.0, 1.0,
-        -0.5, -0.5, -0.5,  0.0, 1.0,
-        -0.5, -0.5,  0.5,  0.0, 0.0,
-        -0.5,  0.5,  0.5,  1.0, 0.0,
-    
-         0.5,  0.5,  0.5,  1.0, 0.0,
-         0.5,  0.5, -0.5,  1.0, 1.0,
-         0.5, -0.5, -0.5,  0.0, 1.0,
-         0.5, -0.5, -0.5,  0.0, 1.0,
-         0.5, -0.5,  0.5,  0.0, 0.0,
-         0.5,  0.5,  0.5,  1.0, 0.0,
-    
-        -0.5, -0.5, -0.5,  0.0, 1.0,
-         0.5, -0.5, -0.5,  1.0, 1.0,
-         0.5, -0.5,  0.5,  1.0, 0.0,
-         0.5, -0.5,  0.5,  1.0, 0.0,
-        -0.5, -0.5,  0.5,  0.0, 0.0,
-        -0.5, -0.5, -0.5,  0.0, 1.0,
-    
-        -0.5,  0.5, -0.5,  0.0, 1.0,
-         0.5,  0.5, -0.5,  1.0, 1.0,
-         0.5,  0.5,  0.5,  1.0, 0.0,
-         0.5,  0.5,  0.5,  1.0, 0.0,
-        -0.5,  0.5,  0.5,  0.0, 0.0,
-        -0.5,  0.5, -0.5,  0.0, 1.0f32
-    ];
+    glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
 
-    let mut vao = VertexArrayObject::new(&ctx);
-    vao.bind(&ctx);
-
-    let vbo = VertexBufferObject::new(&ctx);
-    vbo.set_data(&ctx, &vertices);
-
-    vao.add_attrib::<f32>(3).add_attrib::<f32>(2).apply_attribs(&ctx);
-
-    // loading texture
-    let texture0 = texture::Texture::from_file(&ctx, "img/container.jpg", 0);
-    let texture1 = texture::Texture::from_file(&ctx, "img/awesome.png", 1);
-
-    let shader = Shader::from_file(&ctx, "shader/triangle.vert", "shader/triangle.frag", None);
-
-    shader.make_current(&ctx);
-    texture0.use_in_shader(&ctx, &shader);
-    texture1.use_in_shader(&ctx, &shader);
+    let mut rm = ResourceManager::new();
 
     let mut delta_time;
     let mut last_frame = 0.0f64;
-
-    let mut mix_val = 0.0f32;
 
     let mut wireframe_status: u32 = 0;
 
@@ -139,8 +78,14 @@ fn main() {
         glm::vec3( 1.3, -2.0, -2.5),  
         glm::vec3( 1.5,  2.0, -2.5), 
         glm::vec3( 1.5,  0.2, -1.5), 
-        glm::vec3(-1.3,  1.0, -1.5)  
+        glm::vec3(-1.3,  1.0, -1.5)
     ];
+
+    TestCubeObject::init(&ctx, &mut rm);
+    let mut test_cubes: Vec<TestCubeObject> = cube_positions.iter().enumerate().map(|(idx, pos)| TestCubeObject::new(idx as f32, *pos)).collect();
+
+    let mut frames = 0u32;
+    let mut time_sf = 0f32;
 
     while !window.should_close() {
         unsafe {
@@ -148,37 +93,21 @@ fn main() {
             ctx.clear(glow::COLOR_BUFFER_BIT | glow::DEPTH_BUFFER_BIT);
         }
 
-        texture0.bind(&ctx);
-        texture1.bind(&ctx);
-
-        vao.bind(&ctx);
-
         let time_value = glfw.get_time();
         delta_time = (time_value - last_frame) as f32;
         last_frame = time_value;
 
-        shader.make_current(&ctx);
-        shader.set_uniform(&ctx, "mix_val", mix_val);
-        // shader.set_uniform(&ctx, "time", time_value as f32);
+        frames += 1;
+        time_sf += delta_time;
 
-        let projection = glm::ext::perspective(cam.fov.to_radians(), SCREEN_RATIO, 0.1, 100.0);
-        let view = cam.get_view_matrix();
-
-        shader.set_uniform(&ctx, "projection", projection);
-        shader.set_uniform(&ctx, "view", view);
-
-        for i in 0..10 {
-            let mut model = glm::Mat4::from_val(1.0);
-            model = glm::ext::translate(&model, cube_positions[i]);
-            let angle = 20.0 * i as f32;
-            model = glm::ext::rotate(&model, angle.to_radians(), glm::vec3(1.0, 0.3, 0.5));
-            model = glm::ext::rotate(&model, time_value as f32 * 50.0f32.to_radians(), glm::vec3(0.5, 1.0, 0.0));
-            shader.set_uniform(&ctx, "model", model);
-
-            unsafe {
-                ctx.draw_arrays(glow::TRIANGLES, 0, 36);
-            }
+        if time_sf > 1.0 {
+            let fps = frames as f32 * (1.0 / time_sf);
+            println!("{}FPS", fps);
+            frames = 0;
+            time_sf -= 1.0;
         }
+
+        test_cubes.iter().for_each(|x| x.draw(&ctx, &rm, &cam, time_value as f32));
 
         unsafe {
             ctx.bind_vertex_array(None);
@@ -194,8 +123,7 @@ fn main() {
                 process(Key::S, CameraMovementDirection::Back);
                 process(Key::A, CameraMovementDirection::Left);
                 process(Key::D, CameraMovementDirection::Right);
-                if window.get_key(Key::Up) == glfw::Action::Press { mix_val += 2.0 * delta_time; clamp_mut(&mut mix_val, 0.0, 1.0); }
-                if window.get_key(Key::Down) == glfw::Action::Press { mix_val -= 2.0 * delta_time; clamp_mut(&mut mix_val, 0.0, 1.0); }
+                test_cubes.iter_mut().for_each(|x| x.update(&window, delta_time, time_value as f32));
             }
 
             for (_, x) in glfw::flush_messages(&receiver) {
@@ -205,6 +133,12 @@ fn main() {
                         if action != Action::Press {continue}
                         match key {
                             Key::Escape => window.set_should_close(true),
+                            Key::Tab => {
+                                window.set_cursor_mode(match window.get_cursor_mode() {
+                                    glfw::CursorMode::Normal => glfw::CursorMode::Disabled,
+                                    _ => glfw::CursorMode::Normal
+                                });
+                            },
                             Key::Z => {
                                 wireframe_status += 1;
                                 wireframe_status = wireframe_status.rem_euclid(3);

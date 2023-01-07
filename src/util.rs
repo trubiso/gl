@@ -1,3 +1,5 @@
+use crate::shader::{Shader, uniform::Uniform};
+
 pub fn clamp<T: PartialOrd>(val: T, min: T, max: T) -> T {
     if val < min {
         min
@@ -28,6 +30,14 @@ pub trait MatrixUtils {
     }
 
     fn from_val(val: f32) -> Self;
+
+    fn identity() -> Self where Self: Sized {
+        Self::from_val(1.0)
+    }
+
+    fn use_in_shader(self, ctx: &glow::Context, shader: &Shader, name: &str) where Self: Uniform, Self: Sized {
+        shader.set_uniform(ctx, name, self);
+    }
 }
 
 impl MatrixUtils for glm::Mat2 {
@@ -52,4 +62,21 @@ pub fn texture_num_to_u32(tnum: u32) -> u8 {
 
 pub fn u32_to_texture_num(num: u8) -> u32 {
     num as u32 + glow::TEXTURE0 // COULD POTENTIALLY BREAK
+}
+
+pub trait Mat4Utils {
+    fn translate(&mut self, coords: glm::Vec3) -> &mut Self;
+    fn rotate(&mut self, angle: f32, axis: glm::Vec3) -> &mut Self;
+}
+
+impl Mat4Utils for glm::Mat4 {
+    fn translate(&mut self, coords: glm::Vec3) -> &mut Self {
+        *self = glm::ext::translate(self, coords);
+        self
+    }
+
+    fn rotate(&mut self, angle: f32, axis: glm::Vec3) -> &mut Self {
+        *self = glm::ext::rotate(self, angle, axis);
+        self
+    }
 }
