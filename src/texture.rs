@@ -4,9 +4,9 @@ use crate::{shader::Shader, util::{u32_to_texture_num}};
 
 #[derive(Debug)]
 pub struct Texture {
-  pub id: NativeTexture,
-  pub num: u8,
-  pub gl_num: u32
+  id: NativeTexture,
+  num: u8,
+  gl_num: u32
 }
 
 impl Texture {
