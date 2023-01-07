@@ -51,7 +51,7 @@ fn main() {
     window.set_cursor_pos_polling(true);
     window.set_scroll_polling(true);
 
-    let shader = Shader::from_file(&ctx, "shader/triangle.vert", "shader/triangle.frag");
+    let shader = Shader::from_file(&ctx, "shader/triangle.vert", "shader/triangle.frag", None);
 
     #[rustfmt::skip]
     let vertices = [

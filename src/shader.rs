@@ -6,6 +6,7 @@ pub mod uniform;
 enum ShaderType {
     Vertex,
     Fragment,
+    Geometry
 }
 
 pub struct Shader {
@@ -16,8 +17,9 @@ impl Shader {
     fn create_shader(ctx: &glow::Context, code: &str, shader_type: ShaderType) -> glow::NativeShader {
         let shader = unsafe {
             ctx.create_shader(match shader_type {
-                ShaderType::Vertex => gl::VERTEX_SHADER,
-                ShaderType::Fragment => gl::FRAGMENT_SHADER,
+                ShaderType::Vertex => glow::VERTEX_SHADER,
+                ShaderType::Fragment => glow::FRAGMENT_SHADER,
+                ShaderType::Geometry => glow::GEOMETRY_SHADER
             })
         }
         .unwrap();
@@ -34,14 +36,20 @@ impl Shader {
         shader
     }
 
-    pub fn new(ctx: &glow::Context, vert: &str, frag: &str) -> Self {
+    pub fn new(ctx: &glow::Context, vert: &str, frag: &str, geom: Option<String>) -> Self {
+        let geom_exists = geom.is_some();
         let vert = Self::create_shader(ctx, vert, ShaderType::Vertex);
         let frag = Self::create_shader(ctx, frag, ShaderType::Fragment);
+        let geom = match geom {
+            Some(path) => Some(Self::create_shader(ctx, &path, ShaderType::Geometry)),
+            _ => None
+        };
 
         let id = unsafe {
             let id = ctx.create_program().unwrap();
             ctx.attach_shader(id, vert);
             ctx.attach_shader(id, frag);
+            if geom_exists { ctx.attach_shader(id, geom.unwrap()) };
             ctx.link_program(id);
             if !ctx.get_program_link_status(id) {
                 let log = ctx.get_program_info_log(id);
@@ -49,6 +57,7 @@ impl Shader {
             }
             ctx.delete_shader(vert);
             ctx.delete_shader(frag);
+            if geom_exists { ctx.delete_shader(geom.unwrap()) };
             id
         };
 
@@ -57,11 +66,15 @@ impl Shader {
         }
     }
 
-    pub fn from_file(ctx: &glow::Context, vert: &str, frag: &str) -> Self {
+    pub fn from_file(ctx: &glow::Context, vert: &str, frag: &str, geom: Option<&str>) -> Self {
         Self::new(
             ctx,
             &fs::read_to_string(vert).unwrap(),
             &fs::read_to_string(frag).unwrap(),
+            match geom {
+                Some(path) => Some(fs::read_to_string(path).unwrap()),
+                _ => None
+            }
         )
     }
 
