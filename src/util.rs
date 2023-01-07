@@ -31,3 +31,11 @@ pub trait MatrixSlice {
 impl MatrixSlice for glm::Mat2 {}
 impl MatrixSlice for glm::Mat3 {}
 impl MatrixSlice for glm::Mat4 {}
+
+pub fn texture_num_to_u32(tnum: u32) -> u8 {
+    (tnum - glow::TEXTURE0) as u8 // COULD POTENTIALLY BREAK
+}
+
+pub fn u32_to_texture_num(num: u8) -> u32 {
+    num as u32 + glow::TEXTURE0 // COULD POTENTIALLY BREAK
+}

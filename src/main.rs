@@ -8,43 +8,13 @@ use crate::{shader::Shader, camera::{Camera, FreeFlyCamera}};
 pub mod camera;
 pub mod shader;
 pub mod util;
+pub mod object;
+pub mod resource;
+pub mod texture;
 
 const SCREEN_WIDTH: u32 = 800;
 const SCREEN_HEIGHT: u32 = 600;
 const SCREEN_RATIO: f32 = (SCREEN_WIDTH as f32) / (SCREEN_HEIGHT as f32);
-
-fn create_texture(ctx: &glow::Context, image: image::DynamicImage, texture_num: u32) -> glow::NativeTexture {
-    let texture = unsafe { ctx.create_texture() }.unwrap();
-
-    unsafe {
-        ctx.active_texture(texture_num);
-        ctx.bind_texture(glow::TEXTURE_2D, Some(texture));
-
-        ctx.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_WRAP_S, glow::REPEAT as i32);
-        ctx.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_WRAP_T, glow::REPEAT as i32);
-        ctx.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_MIN_FILTER, glow::NEAREST_MIPMAP_NEAREST as i32);
-        ctx.tex_parameter_i32(glow::TEXTURE_2D, glow::TEXTURE_MAG_FILTER, glow::NEAREST as i32);
-
-        let width = image.width() as i32;
-        let height = image.height() as i32;
-
-        let a;
-
-        let (image_format, image_type, data) = match &image {
-            image::DynamicImage::ImageRgba8(data) => (glow::RGBA, glow::UNSIGNED_BYTE, &**data),
-            image::DynamicImage::ImageRgb8(data) => (glow::RGB, glow::UNSIGNED_BYTE, &**data),
-            _ => (glow::RGBA, glow::UNSIGNED_BYTE, {
-                a = image.into_rgba8();
-                &*a
-            })
-        };
-
-        ctx.tex_image_2d(glow::TEXTURE_2D, 0, image_format as i32, width, height, 0, image_format, image_type, Some(data));
-        ctx.generate_mipmap(glow::TEXTURE_2D)
-    }
-
-    texture
-}
 
 fn main() {
     // init
@@ -155,12 +125,12 @@ fn main() {
     }
 
     // loading texture
-    let texture0 = create_texture(&ctx, image::io::Reader::open("img/container.jpg").unwrap().decode().unwrap(), glow::TEXTURE0);
-    let texture1 = create_texture(&ctx, image::io::Reader::open("img/awesome.png").unwrap().decode().unwrap(), glow::TEXTURE1);
+    let texture0 = texture::Texture::from_file(&ctx, "img/container.jpg", 0);
+    let texture1 = texture::Texture::from_file(&ctx, "img/awesome.png", 1);
 
     shader.make_current(&ctx);
-    shader.set_uniform(&ctx, "tex1", 0i32);
-    shader.set_uniform(&ctx, "tex2", 1i32);
+    texture0.use_in_shader(&ctx, &shader);
+    texture1.use_in_shader(&ctx, &shader);
 
     let mut delta_time;
     let mut last_frame = 0.0f64;
@@ -193,10 +163,8 @@ fn main() {
             ctx.clear_color(1.0, 0.776470588235, 0.0, 1.0);
             ctx.clear(glow::COLOR_BUFFER_BIT | glow::DEPTH_BUFFER_BIT);
 
-            ctx.active_texture(glow::TEXTURE0);
-            ctx.bind_texture(glow::TEXTURE_2D, Some(texture0));
-            ctx.active_texture(glow::TEXTURE1);
-            ctx.bind_texture(glow::TEXTURE_2D, Some(texture1));
+            texture0.bind(&ctx);
+            texture1.bind(&ctx);
 
             ctx.bind_vertex_array(Some(vao));
         }
