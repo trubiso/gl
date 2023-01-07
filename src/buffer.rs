@@ -115,3 +115,34 @@ impl VertexBufferObject {
         }
     }
 }
+
+pub struct ElementBufferObject {
+    id: NativeBuffer
+}
+
+impl ElementBufferObject {
+    pub fn new(ctx: &glow::Context) -> Self {
+        let id = unsafe { ctx.create_buffer().unwrap() };
+        Self {
+            id
+        }
+    }
+
+    pub fn bind(&self, ctx: &glow::Context) {
+        unsafe {
+            ctx.bind_buffer(glow::ELEMENT_ARRAY_BUFFER, Some(self.id));
+        }
+    }
+
+    /// Note: binds self, may want to re-bind other EBO afterwards
+    pub fn set_data<T: bytemuck::Pod>(&self, ctx: &glow::Context, val: &[T]) {
+        self.bind(ctx);
+        unsafe {
+            ctx.buffer_data_u8_slice(
+                glow::ELEMENT_ARRAY_BUFFER,
+                bytemuck::cast_slice(val),
+                glow::STATIC_DRAW,
+            );
+        }
+    }
+}
