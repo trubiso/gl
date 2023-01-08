@@ -1,12 +1,14 @@
+use std::f32::consts::PI;
+
 use glm::{self, vec3, Vec3};
 
 use crate::{util::{clamp_mut}, SCREEN_RATIO};
 
-const YAW: f32 = -90.0;
+const YAW: f32 = -PI / 2.0;
 const PITCH: f32 = 0.0;
 const SPEED: f32 = 10.0;
-const SENSITIVITY: f32 = 0.1;
-const FOV: f32 = 45.0;
+const SENSITIVITY: f32 = 1.0 / 400.0;
+const FOV: f32 = PI / 4.0;
 
 pub enum CameraEvent {
     KeyboardMovement(CameraMovementDirection),
@@ -49,7 +51,7 @@ impl Camera for FreeFlyCamera {
     }
 
     fn get_projection_matrix(&self) -> glm::Mat4 {
-        glm::ext::perspective(self.fov.to_radians(), SCREEN_RATIO, 0.1, 100.0)
+        glm::ext::perspective(self.fov, SCREEN_RATIO, 0.1, 100.0)
     }
 
     fn use_in_shader(&self, ctx: &glow::Context, shader: &crate::shader::Shader) {
@@ -73,12 +75,12 @@ impl Camera for FreeFlyCamera {
             CameraEvent::MouseMovement(x, y) => {
                 self.yaw += x * self.sensitivity;
                 self.pitch += y * self.sensitivity;
-                clamp_mut(&mut self.pitch, -89.9, 89.9);
+                clamp_mut(&mut self.pitch, -(PI / 2.0 - 0.1), PI / 2.0 - 0.1);
                 self.update_camera_vectors();
             }
             CameraEvent::ScrollMovement(y) => {
-                self.fov -= y;
-                clamp_mut(&mut self.fov, 1.0, 90.0);
+                self.fov -= y * PI / 180.0;
+                clamp_mut(&mut self.fov, PI / 180.0, PI / 2.0);
             }
         };
     }
@@ -93,9 +95,9 @@ impl Default for FreeFlyCamera {
 impl FreeFlyCamera {
     fn update_camera_vectors(&mut self) {
         let mut new_front = vec3(0.0, 0.0, 0.0);
-        new_front.x = self.yaw.to_radians().cos() * self.pitch.to_radians().cos();
-        new_front.y = self.pitch.to_radians().sin();
-        new_front.z = self.yaw.to_radians().sin() * self.pitch.to_radians().cos();
+        new_front.x = self.yaw.cos() * self.pitch.cos();
+        new_front.y = self.pitch.sin();
+        new_front.z = self.yaw.sin() * self.pitch.cos();
 
         self.front = glm::normalize(new_front);
         self.right = glm::normalize(glm::cross(self.front, self.wup));
