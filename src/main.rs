@@ -123,6 +123,8 @@ fn main() {
                 process(Key::S, CameraMovementDirection::Back);
                 process(Key::A, CameraMovementDirection::Left);
                 process(Key::D, CameraMovementDirection::Right);
+                process(Key::LeftShift, CameraMovementDirection::Down);
+                process(Key::Space, CameraMovementDirection::Up);
                 test_cubes.iter_mut().for_each(|x| x.update(&window, delta_time, time_value as f32));
             }
 

@@ -19,6 +19,8 @@ pub enum CameraMovementDirection {
     Back,
     Left,
     Right,
+    Up,
+    Down
 }
 
 pub trait Camera {
@@ -64,12 +66,14 @@ impl Camera for FreeFlyCamera {
                     CameraMovementDirection::Back => self.pos = self.pos - self.front * velocity,
                     CameraMovementDirection::Right => self.pos = self.pos + self.right * velocity,
                     CameraMovementDirection::Left => self.pos = self.pos - self.right * velocity,
+                    CameraMovementDirection::Up => self.pos = self.pos + self.wup * velocity,
+                    CameraMovementDirection::Down => self.pos = self.pos - self.wup * velocity,
                 }
             }
             CameraEvent::MouseMovement(x, y) => {
                 self.yaw += x * self.sensitivity;
                 self.pitch += y * self.sensitivity;
-                clamp_mut(&mut self.pitch, -89.0, 89.0);
+                clamp_mut(&mut self.pitch, -89.9, 89.9);
                 self.update_camera_vectors();
             }
             CameraEvent::ScrollMovement(y) => {
