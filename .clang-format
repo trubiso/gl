@@ -1,0 +1,23 @@
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 0
+UseTab: ForIndentation
+TabWidth: 4
+AccessModifierOffset: -4
+AlignConsecutiveAssignments: AcrossEmptyLines
+AlignOperands: AlignAfterOperator
+BreakBeforeBinaryOperators: All
+IndentCaseBlocks: false
+IndentCaseLabels: false
+DerivePointerAlignment: false
+PointerAlignment: Right
+QualifierAlignment: Left
+ReferenceAlignment: Pointer
+SeparateDefinitionBlocks: Always
+SpacesInCStyleCastParentheses: false
+SpaceAfterCStyleCast: true
+SpacesInConditionalStatement: false
+SpacesInAngles: Never
+IncludeBlocks: Merge
+SortUsingDeclarations: true
+
