@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "Shader.h"
 
 unsigned SCREEN_WIDTH  = 800;
 unsigned SCREEN_HEIGHT = 600;
@@ -66,6 +67,8 @@ int main() {
 	glfwSetScrollCallback(window, scroll_callback);
 
 	// glfwSwapInterval() glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
+
+	Shader shader = Shader::from_file("shader/triangle1.vert", "shader/triangle1.frag");
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(1.0, 0.776470588235, 0.0, 1.0);
