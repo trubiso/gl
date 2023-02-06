@@ -1,7 +1,3 @@
-set(OpenGL_GL_PREFERENCE GLVND)
-find_package(glfw3 3.3 REQUIRED)
-find_package(GLEW REQUIRED)
-find_package(OpenGL REQUIRED)
 add_library(stb_image stb_image.cpp)
-add_executable(out main.cpp Shader.cpp Util.cpp)
+add_executable(out main.cpp Shader.cpp Camera.cpp Util.cpp)
 target_link_libraries(out stb_image glfw GL GLEW::GLEW)

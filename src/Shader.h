@@ -1,5 +1,6 @@
 #pragma once
 #include <GL/glew.h>
+#include <glm/glm.hpp>
 
 class Shader {
 private:
@@ -19,4 +20,28 @@ public:
 	inline void use() const { glUseProgram(this->ID); }
 
 	inline unsigned get_uniform_location(const char *name) const { return glGetUniformLocation(this->ID, name); }
+
+	inline void set_bool(const char *name, bool value) { glUniform1i(this->get_uniform_location(name), value); }
+
+	inline void set_int(const char *name, int value) { glUniform1i(this->get_uniform_location(name), value); }
+
+	inline void set_float(const char *name, float value) { glUniform1f(this->get_uniform_location(name), value); }
+
+	inline void set_vec2(const char *name, const glm::vec2 &value) { glUniform2fv(this->get_uniform_location(name), 1, &value[0]); }
+
+	inline void set_vec3(const char *name, const glm::vec3 &value) { glUniform3fv(this->get_uniform_location(name), 1, &value[0]); }
+
+	inline void set_vec4(const char *name, const glm::vec4 &value) { glUniform4fv(this->get_uniform_location(name), 1, &value[0]); }
+
+	inline void set_vec2(const char *name, float x, float y) { glUniform2f(this->get_uniform_location(name), x, y); }
+
+	inline void set_vec3(const char *name, float x, float y, float z) { glUniform3f(this->get_uniform_location(name), x, y, z); }
+
+	inline void set_vec4(const char *name, float x, float y, float z, float w) { glUniform4f(this->get_uniform_location(name), x, y, z, w); }
+
+	inline void set_mat2(const char *name, const glm::mat2 &mat) { glUniformMatrix2fv(this->get_uniform_location(name), 1, GL_FALSE, &mat[0][0]); }
+
+	inline void set_mat3(const char *name, const glm::mat3 &mat) { glUniformMatrix3fv(this->get_uniform_location(name), 1, GL_FALSE, &mat[0][0]); }
+
+	inline void set_mat4(const char *name, const glm::mat4 &mat) { glUniformMatrix4fv(this->get_uniform_location(name), 1, GL_FALSE, &mat[0][0]); }
 };
