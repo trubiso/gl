@@ -3,7 +3,7 @@
 
 class VertexArray {
 private:
-	unsigned ID;
+	uint ID;
 
 public:
 	inline VertexArray() { glGenVertexArrays(1, &this->ID); };

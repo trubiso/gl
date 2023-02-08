@@ -7,8 +7,8 @@
 #include "Texture.h"
 #include "VertexArray.h"
 
-unsigned SCREEN_WIDTH  = 800;
-unsigned SCREEN_HEIGHT = 600;
+uint SCREEN_WIDTH  = 800;
+uint SCREEN_HEIGHT = 600;
 double SCREEN_RATIO    = (double) SCREEN_WIDTH / (double) SCREEN_HEIGHT;
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int modifiers) {

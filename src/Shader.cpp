@@ -3,8 +3,8 @@
 #include <iostream>
 #include "Util.h"
 
-unsigned Shader::create_shader(const char *code, GLenum type) {
-	unsigned shader = glCreateShader(type);
+uint Shader::create_shader(const char *code, GLenum type) {
+	uint shader = glCreateShader(type);
 	glShaderSource(shader, 1, &code, NULL);
 	glCompileShader(shader);
 
@@ -23,9 +23,9 @@ unsigned Shader::create_shader(const char *code, GLenum type) {
 }
 
 Shader::Shader(const char *vertex_shader_code, const char *fragment_shader_code, const char *geometry_shader_code, bool geometry_shader_exists) {
-	const unsigned vertex_id   = create_shader(vertex_shader_code, GL_VERTEX_SHADER);
-	const unsigned fragment_id = create_shader(fragment_shader_code, GL_FRAGMENT_SHADER);
-	const unsigned geometry_id = geometry_shader_exists ? create_shader(geometry_shader_code, GL_GEOMETRY_SHADER) : 0;
+	const uint vertex_id   = create_shader(vertex_shader_code, GL_VERTEX_SHADER);
+	const uint fragment_id = create_shader(fragment_shader_code, GL_FRAGMENT_SHADER);
+	const uint geometry_id = geometry_shader_exists ? create_shader(geometry_shader_code, GL_GEOMETRY_SHADER) : 0;
 
 	this->ID                   = glCreateProgram();
 

@@ -4,7 +4,7 @@
 #include "Util.h"
 
 Texture::Texture(unsigned char *image, GLenum texture_number, int width, int height, GLint internal_format) {
-	unsigned int texture;
+	uint texture;
 	glGenTextures(1, &texture);
 	glActiveTexture(texture_number);
 	glBindTexture(GL_TEXTURE_2D, texture);

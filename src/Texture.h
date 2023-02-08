@@ -6,9 +6,9 @@
 // maybe i could even leave this class as a small abstraction for loading textures and binding them but then provide a SpritesheetTexture alongside it... we'll see later
 class Texture {
 private:
-	unsigned ID;
-	unsigned number;
-	unsigned gl_number;
+	uint ID;
+	uint number;
+	uint gl_number;
 
 public:
 	Texture(unsigned char *image, GLenum texture_number, int width, int height, GLint internal_format = GL_RGB);
