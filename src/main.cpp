@@ -1,8 +1,11 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "BufferObject.h"
+#include "Camera.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "VertexArray.h"
 
 unsigned SCREEN_WIDTH  = 800;
 unsigned SCREEN_HEIGHT = 600;
@@ -75,9 +78,28 @@ int main() {
 	Texture texture0 = Texture::from_file("img/container.jpg", GL_TEXTURE0);
 	Texture texture1 = Texture::from_file("img/awesome.png", GL_TEXTURE1, GL_RGBA);
 
+	shader.use();
+	texture0.use_in_shader(shader);
+	texture1.use_in_shader(shader);
+
+	Camera cam{};
+
+	VertexArray va{};
+	va.bind();
+
+	BufferObject vbo{BufferObjectType::Array};
+	vbo.bind();
+
+	BufferObject ebo{BufferObjectType::Element};
+	ebo.bind();
+
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(1.0, 0.776470588235, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		texture0.bind();
+		texture1.bind();
+		cam.use_in_shader(shader);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
