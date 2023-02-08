@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include "Shader.h"
+#include "Texture.h"
 
 unsigned SCREEN_WIDTH  = 800;
 unsigned SCREEN_HEIGHT = 600;
@@ -69,6 +70,10 @@ int main() {
 	// glfwSwapInterval() glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
 
 	Shader shader = Shader::from_file("shader/triangle1.vert", "shader/triangle1.frag");
+
+	// textures
+	Texture texture0 = Texture::from_file("img/container.jpg", GL_TEXTURE0);
+	Texture texture1 = Texture::from_file("img/awesome.png", GL_TEXTURE1, GL_RGBA);
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(1.0, 0.776470588235, 0.0, 1.0);
