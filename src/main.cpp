@@ -7,9 +7,9 @@
 #include "Texture.h"
 #include "VertexArray.h"
 
-uint SCREEN_WIDTH  = 800;
-uint SCREEN_HEIGHT = 600;
-double SCREEN_RATIO    = (double) SCREEN_WIDTH / (double) SCREEN_HEIGHT;
+uint SCREEN_WIDTH   = 800;
+uint SCREEN_HEIGHT  = 600;
+double SCREEN_RATIO = (double) SCREEN_WIDTH / (double) SCREEN_HEIGHT;
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int modifiers) {
 	if (key == GLFW_KEY_ESCAPE) {
@@ -84,14 +84,70 @@ int main() {
 
 	Camera cam{};
 
+	// vertex
+	// clang-format off
+  const float vertices[] = {
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+  };
+	// clang-format on
+
+	const uint indices[] = {0, 1, 2, 1, 2, 3};
+
 	VertexArray va{};
 	va.bind();
 
 	BufferObject vbo{BufferObjectType::Array};
 	vbo.bind();
+	vbo.set_data(vertices);
 
 	BufferObject ebo{BufferObjectType::Element};
 	ebo.bind();
+	ebo.set_data(indices);
+
+	VertexArrayAttributeBuilder()
+	    .add_float_attribute(3)  // position (x, y, z)
+	    .add_float_attribute(2)  // texture coordinates (x, y)
+	    .apply_to(va);
 
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(1.0, 0.776470588235, 0.0, 1.0);
