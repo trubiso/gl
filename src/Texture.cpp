@@ -43,5 +43,5 @@ void Texture::bind() {
 void Texture::use_in_shader(Shader &shader) {
 	std::string name = "tex";
 	name += std::to_string(this->number + 1);
-	shader.set_int(name.c_str(), this->number);
+	shader.set(name.c_str(), (int) this->number);
 }

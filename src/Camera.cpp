@@ -13,8 +13,8 @@ void Camera::update_camera_vectors() {
 }
 
 void Camera::use_in_shader(Shader &shader) {
-	shader.set_mat4("view", this->get_view_matrix());
-	shader.set_mat4("projection", this->get_projection_matrix());
+	shader.set("view", this->get_view_matrix());
+	shader.set("projection", this->get_projection_matrix());
 }
 
 void Camera::move_direction(MovementDirection direction, double delta_time) {
