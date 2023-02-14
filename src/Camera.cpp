@@ -21,14 +21,14 @@ void Camera::move_direction(MovementDirection direction, double delta_time) {
 	float velocity = this->speed * delta_time;
 	// clang-format off
 	switch (direction) {
-		case Forward:   this->position += velocity * this->front;    break;
-		case Backward:  this->position -= velocity * this->front;    break;
-		case Left:      this->position -= velocity * this->right;    break;
-		case Right:     this->position += velocity * this->right;    break;
-		case WorldUp:   this->position += velocity * this->world_up; break;
-		case WorldDown: this->position -= velocity * this->world_up; break;
-		case Up:        this->position += velocity * this->up;       break;
-		case Down:      this->position -= velocity * this->up;       break;
+		case MovementDirection::Forward:   this->position += velocity * this->front;    break;
+		case MovementDirection::Backward:  this->position -= velocity * this->front;    break;
+		case MovementDirection::Left:      this->position -= velocity * this->right;    break;
+		case MovementDirection::Right:     this->position += velocity * this->right;    break;
+		case MovementDirection::WorldUp:   this->position += velocity * this->world_up; break;
+		case MovementDirection::WorldDown: this->position -= velocity * this->world_up; break;
+		case MovementDirection::Up:        this->position += velocity * this->up;       break;
+		case MovementDirection::Down:      this->position -= velocity * this->up;       break;
 	}
 	// clang-format on
 }

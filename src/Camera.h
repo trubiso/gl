@@ -10,7 +10,7 @@ private:
 	double screen_ratio;
 
 public:
-	enum MovementDirection {
+	enum class MovementDirection {
 		Forward,
 		Backward,
 		Left,
