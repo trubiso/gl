@@ -115,6 +115,8 @@ int main() {
 
 	// glfwSwapInterval() glfw.set_swap_interval(glfw::SwapInterval::Sync(1));
 
+	cam.set_screen_ratio(SCREEN_RATIO);
+
 	Shader shader = Shader::from_file("shader/triangle1.vert", "shader/triangle1.frag");
 
 	// textures
@@ -179,11 +181,11 @@ int main() {
 
 	BufferObject vbo{BufferObjectType::Array};
 	vbo.bind();
-	vbo.set_data(vertices);
+	vbo.set_data(vertices, sizeof(vertices));
 
 	BufferObject ebo{BufferObjectType::Element};
 	ebo.bind();
-	ebo.set_data(indices);
+	ebo.set_data(indices, sizeof(indices));
 
 	VertexArrayAttributeBuilder()
 	    .add_float_attribute(3)  // position (x, y, z)
@@ -227,10 +229,10 @@ int main() {
 
 		for (unsigned i = 0; i < 10; i++) {
 			glm::mat4 model = glm::mat4(1.0f);
-			// model           = glm::translate(model, cube_positions[i]);
-			// model           = glm::rotate(model, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
-			// model           = glm::rotate(model, (float) time_value * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-			// shader.set("model", model);
+			model           = glm::translate(model, cube_positions[i]);
+			model           = glm::rotate(model, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
+			model           = glm::rotate(model, (float) time_value * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+			shader.set("model", model);
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
