@@ -43,5 +43,5 @@ void Camera::rotate_with_offset(double x_offset, double y_offset, bool constrain
 }
 
 void Camera::scroll_fov(double y_offset) {
-	this->fov = clamp(this->fov - y_offset, glm::pi<double>() / 180.0, glm::half_pi<double>());
+	this->fov = clamp(this->fov - y_offset * glm::pi<double>() / 180.0, glm::pi<double>() / 180.0, glm::half_pi<double>());
 }

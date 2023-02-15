@@ -7,10 +7,13 @@
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexArray.h"
+#include "Util.h"
 
 unsigned SCREEN_WIDTH   = 800;
 unsigned SCREEN_HEIGHT  = 600;
 double SCREEN_RATIO = (double) SCREEN_WIDTH / (double) SCREEN_HEIGHT;
+
+float mix_val = 0.0f;
 
 Camera cam{};
 
@@ -25,6 +28,11 @@ void check_down_keys(GLFWwindow *window, double delta_time) {
 	check_key(GLFW_KEY_D, Camera::MovementDirection::Right);
 	check_key(GLFW_KEY_LEFT_SHIFT, Camera::MovementDirection::WorldDown);
 	check_key(GLFW_KEY_SPACE, Camera::MovementDirection::WorldUp);
+
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) mix_val += 0.02f;
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) mix_val -= 0.02f;
+
+	clamp_ref(&mix_val, 0.0f, 1.0f);
 }
 
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int modifiers) {
@@ -98,8 +106,9 @@ int main() {
 	}
 
 	// :D
+	// glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
-	// window.set_cursor_mode(glfw::CursorMode::Disabled);
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	glEnable(GL_DEBUG_OUTPUT);
 	glDebugMessageCallback(debug_message_callback, nullptr);
@@ -222,7 +231,7 @@ int main() {
 		last_frame = time_value;
 
 		shader.use();
-		shader.set("mix_val", 0.0f);
+		shader.set("mix_val", mix_val);
 		shader.set("time", (float) time_value);
 
 		cam.use_in_shader(shader);
