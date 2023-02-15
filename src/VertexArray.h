@@ -6,7 +6,7 @@ typedef unsigned int uint; // this is unnecessary but vscode literally will NOT 
 
 class VertexArray {
 private:
-	uint ID;
+	unsigned ID;
 
 public:
 	inline VertexArray() { glGenVertexArrays(1, &this->ID); };
@@ -17,22 +17,22 @@ public:
 class VertexArrayAttributeBuilder {
 private:
 	struct Attribute {
-		uint size;
+		unsigned size;
 		GLenum gl_data_type;
-		uint memory_size;
+		unsigned memory_size;
 	};
 
 	std::vector<Attribute> attributes;
 
-	uint apply_attribute(uint index, uint stride, uint offset);
-	void add_attribute(uint size, GLenum gl_data_type, uint memory_size);
+	unsigned apply_attribute(unsigned index, unsigned stride, unsigned offset);
+	void add_attribute(unsigned size, GLenum gl_data_type, unsigned memory_size);
 
 public:
 	VertexArrayAttributeBuilder() : attributes(){};
 
-	inline VertexArrayAttributeBuilder &add_float_attribute(uint size) { this->add_attribute(size, GL_FLOAT, sizeof(float)); return *this; }
+	inline VertexArrayAttributeBuilder &add_float_attribute(unsigned size) { this->add_attribute(size, GL_FLOAT, sizeof(float)); return *this; }
 
-	inline VertexArrayAttributeBuilder &add_int_attribute(uint size) { this->add_attribute(size, GL_INT, sizeof(int)); return *this; }
+	inline VertexArrayAttributeBuilder &add_int_attribute(unsigned size) { this->add_attribute(size, GL_INT, sizeof(int)); return *this; }
 
 	void apply_to(VertexArray &vertex_array);
 };

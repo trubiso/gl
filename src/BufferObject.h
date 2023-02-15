@@ -8,7 +8,7 @@ enum BufferObjectType {
 
 class BufferObject {
 private:
-	uint ID;
+	unsigned ID;
 	BufferObjectType type;
 
 public:

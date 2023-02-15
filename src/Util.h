@@ -18,10 +18,10 @@ inline T clamp_ref(T *val, T min, T max) {
 	return *val;
 }
 
-inline uint gl_texture_number_to_uint(GLenum texture_number) {
+inline unsigned gl_texture_number_to_uint(GLenum texture_number) {
 	return texture_number - GL_TEXTURE0;
 }
 
-inline GLenum uint_to_gl_texture_number(uint number) {
+inline GLenum uint_to_gl_texture_number(unsigned number) {
 	return number + GL_TEXTURE0;
 }

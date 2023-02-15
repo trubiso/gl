@@ -4,8 +4,8 @@
 
 class Shader {
 private:
-	uint ID;
-	static uint create_shader(const char *code, GLenum type);
+	unsigned ID;
+	static unsigned create_shader(const char *code, GLenum type);
 	Shader(const char *vertex_shader_code, const char *fragment_shader_code, const char *geometry_shader_code, bool geometry_shader_exists);
 	static Shader from_file(const char *vertex_shader_path, const char *fragment_shader_path, const char *geometry_shader_path, bool geometry_shader_exists);
 
@@ -19,7 +19,7 @@ public:
 
 	inline void use() const { glUseProgram(this->ID); }
 
-	inline uint get_uniform_location(const char *name) const { return glGetUniformLocation(this->ID, name); }
+	inline unsigned get_uniform_location(const char *name) const { return glGetUniformLocation(this->ID, name); }
 
 	inline void set(const char *name, bool value) { glUniform1i(this->get_uniform_location(name), value); }
 

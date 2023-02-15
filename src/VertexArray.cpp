@@ -1,7 +1,7 @@
 #include "VertexArray.h"
 #include <numeric>
 
-uint VertexArrayAttributeBuilder::apply_attribute(uint index, uint stride, uint offset) {
+unsigned VertexArrayAttributeBuilder::apply_attribute(unsigned index, unsigned stride, unsigned offset) {
 	auto &attribute = this->attributes[index];
 	switch (attribute.gl_data_type) {
 		case GL_FLOAT:
@@ -16,7 +16,7 @@ uint VertexArrayAttributeBuilder::apply_attribute(uint index, uint stride, uint 
 	return attribute.size * attribute.memory_size;
 }
 
-void VertexArrayAttributeBuilder::add_attribute(uint size, GLenum gl_data_type, uint memory_size) {
+void VertexArrayAttributeBuilder::add_attribute(unsigned size, GLenum gl_data_type, unsigned memory_size) {
 	this->attributes.push_back({
 		size,
 		gl_data_type,
@@ -26,9 +26,9 @@ void VertexArrayAttributeBuilder::add_attribute(uint size, GLenum gl_data_type, 
 
 void VertexArrayAttributeBuilder::apply_to(VertexArray &vertex_array) {
 	vertex_array.bind();
-	const uint stride = std::accumulate(this->attributes.cbegin(), this->attributes.cend(), 0, [](auto a, auto b){ return a + b.memory_size * b.size; });
-	uint offset = 0u;
-	for (uint index = 0 ; index < this->attributes.size() ; index ++) {
+	const unsigned stride = std::accumulate(this->attributes.cbegin(), this->attributes.cend(), 0, [](auto a, auto b){ return a + b.memory_size * b.size; });
+	unsigned offset = 0u;
+	for (unsigned index = 0 ; index < this->attributes.size() ; index ++) {
 		offset += this->apply_attribute(index, stride, offset);
 	}
 }

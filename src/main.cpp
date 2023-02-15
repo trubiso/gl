@@ -8,8 +8,8 @@
 #include "Texture.h"
 #include "VertexArray.h"
 
-uint SCREEN_WIDTH   = 800;
-uint SCREEN_HEIGHT  = 600;
+unsigned SCREEN_WIDTH   = 800;
+unsigned SCREEN_HEIGHT  = 600;
 double SCREEN_RATIO = (double) SCREEN_WIDTH / (double) SCREEN_HEIGHT;
 
 Camera cam{};
@@ -172,7 +172,7 @@ int main() {
 	};
 	// clang-format on
 
-	const uint indices[] = {0, 1, 2, 1, 2, 3};
+	const unsigned indices[] = {0, 1, 2, 1, 2, 3};
 
 	VertexArray va{};
 	va.bind();
