@@ -3,6 +3,7 @@
 #include <iostream>
 #include "BufferObject.h"
 #include "Camera.h"
+#include "Debug.h"
 #include "Shader.h"
 #include "Texture.h"
 #include "VertexArray.h"
@@ -11,25 +12,63 @@ uint SCREEN_WIDTH   = 800;
 uint SCREEN_HEIGHT  = 600;
 double SCREEN_RATIO = (double) SCREEN_WIDTH / (double) SCREEN_HEIGHT;
 
+Camera cam{};
+
+void check_down_keys(GLFWwindow *window, double delta_time) {
+	auto check_key = [&](int key, Camera::MovementDirection direction) {
+		if (glfwGetKey(window, key) == GLFW_PRESS) cam.move_direction(direction, delta_time);
+	};
+
+	check_key(GLFW_KEY_W, Camera::MovementDirection::Forward);
+	check_key(GLFW_KEY_S, Camera::MovementDirection::Backward);
+	check_key(GLFW_KEY_A, Camera::MovementDirection::Left);
+	check_key(GLFW_KEY_D, Camera::MovementDirection::Right);
+	check_key(GLFW_KEY_LEFT_SHIFT, Camera::MovementDirection::WorldDown);
+	check_key(GLFW_KEY_SPACE, Camera::MovementDirection::WorldUp);
+}
+
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int modifiers) {
-	if (key == GLFW_KEY_ESCAPE) {
+	switch (key) {
+	case GLFW_KEY_ESCAPE:
 		glfwSetWindowShouldClose(window, true);
+		break;
 	}
 }
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 	SCREEN_WIDTH  = width;
 	SCREEN_HEIGHT = height;
-	// TODO: resize camera viewport
+	SCREEN_RATIO  = (double) width / (double) height;
+	cam.set_screen_ratio(SCREEN_RATIO);
 	glViewport(0, 0, width, height);
 }
 
+bool is_first_cursor_pos_callback = true;
+double last_x = 0.0, last_y = 0.0;
+
 void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos) {
-	// TODO: make
+	if (is_first_cursor_pos_callback) {
+		last_x = xpos;
+		last_y = ypos;
+		//
+		is_first_cursor_pos_callback = false;
+	}
+
+	double x_offset = xpos - last_x;
+	double y_offset = last_y - ypos;
+	//
+	last_x = xpos;
+	last_y = ypos;
+
+	cam.rotate_with_offset(x_offset, y_offset);
 }
 
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-	// TODO: make
+	cam.scroll_fov(yoffset);
+}
+
+void error_callback(int error, const char *message) {
+	std::cerr << "[" << std::to_string(error) << "] " << message << std::endl;
 }
 
 int main() {
@@ -62,6 +101,10 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 	// window.set_cursor_mode(glfw::CursorMode::Disabled);
 
+	glEnable(GL_DEBUG_OUTPUT);
+	glDebugMessageCallback(debug_message_callback, nullptr);
+	glfwSetErrorCallback(error_callback);
+
 	// prepare viewport
 	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -82,53 +125,51 @@ int main() {
 	texture0.use_in_shader(shader);
 	texture1.use_in_shader(shader);
 
-	Camera cam{};
-
 	// vertex
 	// clang-format off
-  const float vertices[] = {
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	const float vertices[] = {
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-  };
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
 	// clang-format on
 
 	const uint indices[] = {0, 1, 2, 1, 2, 3};
@@ -149,16 +190,55 @@ int main() {
 	    .add_float_attribute(2)  // texture coordinates (x, y)
 	    .apply_to(va);
 
+	// clang-format off
+	glm::vec3 cube_positions[] = {
+		glm::vec3( 0.0f,  0.0f,  0.0f ), 
+		glm::vec3( 2.0f,  5.0f, -15.0f), 
+		glm::vec3(-1.5f, -2.2f, -2.5f ),  
+		glm::vec3(-3.8f, -2.0f, -12.3f),  
+		glm::vec3( 2.4f, -0.4f, -3.5f ),  
+		glm::vec3(-1.7f,  3.0f, -7.5f ),  
+		glm::vec3( 1.3f, -2.0f, -2.5f ),  
+		glm::vec3( 1.5f,  2.0f, -2.5f ), 
+		glm::vec3( 1.5f,  0.2f, -1.5f ), 
+		glm::vec3(-1.3f,  1.0f, -1.5f )
+	};
+	// clang-format on
+
+	double time_value = 0, last_frame = 0, delta_time = 0;
+
 	while (!glfwWindowShouldClose(window)) {
 		glClearColor(1.0, 0.776470588235, 0.0, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		texture0.bind();
 		texture1.bind();
+		va.bind();
+
+		time_value = glfwGetTime();
+		delta_time = time_value - last_frame;
+		last_frame = time_value;
+
+		shader.use();
+		shader.set("mix_val", 0.0f);
+		shader.set("time", (float) time_value);
+
 		cam.use_in_shader(shader);
+
+		for (unsigned i = 0; i < 10; i++) {
+			glm::mat4 model = glm::mat4(1.0f);
+			// model           = glm::translate(model, cube_positions[i]);
+			// model           = glm::rotate(model, glm::radians(20.0f * i), glm::vec3(1.0f, 0.3f, 0.5f));
+			// model           = glm::rotate(model, (float) time_value * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+			// shader.set("model", model);
+
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+		glBindVertexArray(0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+		check_down_keys(window, delta_time);
 	}
 
 	return 0;
